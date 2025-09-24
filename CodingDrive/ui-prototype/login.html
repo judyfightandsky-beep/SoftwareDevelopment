@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevAuth - 登入</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo區域 -->
+            <div class="logo-section">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7V10C2 16 6 20.09 12 22C18 20.09 22 16 22 10V7L12 2Z"/>
+                    </svg>
+                    <h1 class="logo-text">DevAuth</h1>
+                </div>
+                <p class="subtitle">開發者身份驗證系統</p>
+            </div>
+
+            <!-- 登入表單 -->
+            <form class="login-form" id="loginForm">
+                <!-- 登入方式切換 -->
+                <div class="login-tabs">
+                    <button type="button" class="tab-button active" data-tab="credentials">
+                        <svg class="tab-icon" viewBox="0 0 20 20">
+                            <path d="M10 2L3 7V18H17V7L10 2Z"/>
+                        </svg>
+                        帳號登入
+                    </button>
+                    <button type="button" class="tab-button" data-tab="qrcode">
+                        <svg class="tab-icon" viewBox="0 0 20 20">
+                            <path d="M3 3H9V9H3V3ZM11 3H17V9H11V3ZM3 11H9V17H3V11Z"/>
+                        </svg>
+                        QR登入
+                    </button>
+                </div>
+
+                <!-- 帳號登入面板 -->
+                <div class="tab-panel active" data-panel="credentials">
+                    <div class="input-group">
+                        <label for="identifier" class="input-label">
+                            帳號 / 電子信箱
+                        </label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 20 20">
+                                <path d="M10 9C11.1 9 12 8.1 12 7S11.1 5 10 5 8 5.9 8 7 8.9 9 10 9Z"/>
+                            </svg>
+                            <input
+                                type="text"
+                                id="identifier"
+                                name="identifier"
+                                class="input-field"
+                                placeholder="輸入您的帳號或電子信箱"
+                                autocomplete="username"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password" class="input-label">
+                            密碼
+                        </label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 20 20">
+                                <path d="M5 9V7C5 4.79 6.79 3 9 3H11C13.21 3 15 4.79 15 7V9H16C16.55 9 17 9.45 17 10V18C17 18.55 16.55 19 16 19H4C3.45 19 3 18.55 3 18V10C3 9.45 3.45 9 4 9H5Z"/>
+                            </svg>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="input-field"
+                                placeholder="輸入您的密碼"
+                                autocomplete="current-password"
+                                required
+                            >
+                            <button type="button" class="password-toggle">
+                                <svg class="toggle-icon" viewBox="0 0 20 20">
+                                    <path d="M10 4C5 4 1.73 7.11 1 10C1.73 12.89 5 16 10 16S18.27 12.89 19 10C18.27 7.11 15 4 10 4Z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" class="checkbox" name="remember">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-label">記住我</span>
+                        </label>
+                        <a href="#" class="forgot-link">忘記密碼？</a>
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        <svg class="button-icon" viewBox="0 0 20 20">
+                            <path d="M3 10L8 15L17 6"/>
+                        </svg>
+                        登入
+                    </button>
+                </div>
+
+                <!-- QR Code登入面板 -->
+                <div class="tab-panel" data-panel="qrcode">
+                    <div class="qr-section">
+                        <div class="qr-code-container">
+                            <div class="qr-code" id="qrCodeImage">
+                                <div class="qr-loading">
+                                    <svg class="loading-spinner" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    </svg>
+                                    <p>生成中...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="qr-instructions">
+                            <h3>使用手機掃描QR碼</h3>
+                            <ol class="qr-steps">
+                                <li>用手機相機或掃碼軟體掃描QR碼</li>
+                                <li>掃碼後會顯示驗證網址和驗證碼</li>
+                                <li>在網頁中輸入驗證碼即可登入</li>
+                            </ol>
+                            <div class="verification-code-section" id="verificationSection" style="display: none;">
+                                <div class="verification-code-display">
+                                    <p>掃碼後請輸入顯示的6位數驗證碼：</p>
+                                    <input type="text" id="qrVerificationCode" class="verification-input"
+                                           placeholder="請輸入6位數驗證碼" maxlength="6">
+                                    <button type="button" class="verify-code-btn" id="verifyCodeBtn">驗證登入</button>
+                                </div>
+                            </div>
+                            <p class="qr-expire">QR碼將在 <span id="qrTimer">4:59</span> 後過期</p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- 註冊連結 -->
+            <div class="register-section">
+                <p class="register-text">
+                    還沒有帳號？
+                    <a href="register.html" class="register-link">立即註冊</a>
+                </p>
+            </div>
+
+            <!-- 狀態訊息 -->
+            <div class="message-container" id="messageContainer">
+                <!-- 動態顯示錯誤或成功訊息 -->
+            </div>
+        </div>
+
+        <!-- 背景裝飾 -->
+        <div class="background-pattern">
+            <div class="pattern-grid"></div>
+        </div>
+    </div>
+
+    <script src="assets/js/login.js"></script>
+</body>
+</html>

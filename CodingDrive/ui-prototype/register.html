@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevAuth - 註冊</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card">
+            <!-- 進度指示器 -->
+            <div class="progress-indicator">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">基本資料</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">驗證信箱</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">完成註冊</div>
+                </div>
+            </div>
+
+            <!-- Logo區域 -->
+            <div class="logo-section">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7V10C2 16 6 20.09 12 22C18 20.09 22 16 22 10V7L12 2Z"/>
+                    </svg>
+                    <h1 class="logo-text">DevAuth</h1>
+                </div>
+                <p class="subtitle">建立您的開發者帳號</p>
+            </div>
+
+            <!-- 步驟1: 基本資料 -->
+            <div class="register-step active" data-step="1">
+                <form class="register-form" id="basicInfoForm">
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="firstName" class="input-label">名字 *</label>
+                            <div class="input-wrapper">
+                                <input
+                                    type="text"
+                                    id="firstName"
+                                    name="firstName"
+                                    class="input-field"
+                                    placeholder="請輸入您的名字"
+                                    required
+                                >
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="lastName" class="input-label">姓氏 *</label>
+                            <div class="input-wrapper">
+                                <input
+                                    type="text"
+                                    id="lastName"
+                                    name="lastName"
+                                    class="input-field"
+                                    placeholder="請輸入您的姓氏"
+                                    required
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="username" class="input-label">使用者名稱 *</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 20 20">
+                                <path d="M10 9C11.1 9 12 8.1 12 7S11.1 5 10 5 8 5.9 8 7 8.9 9 10 9Z"/>
+                            </svg>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                class="input-field"
+                                placeholder="選擇一個唯一的使用者名稱"
+                                required
+                                minlength="3"
+                                maxlength="20"
+                            >
+                            <div class="field-status" id="usernameStatus"></div>
+                        </div>
+                        <div class="field-hint">3-20個字元，只能包含字母、數字和下底線</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email" class="input-label">電子信箱 *</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 20 20">
+                                <path d="M3 4C3 3.45 3.45 3 4 3H16C16.55 3 17 3.45 17 4V16C17 16.55 16.55 17 16 17H4C3.45 17 3 16.55 3 16V4Z"/>
+                            </svg>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                class="input-field"
+                                placeholder="example@company.com"
+                                required
+                            >
+                            <div class="field-status" id="emailStatus"></div>
+                        </div>
+                        <div class="field-hint">我們將發送驗證信件到此信箱</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password" class="input-label">密碼 *</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 20 20">
+                                <path d="M5 9V7C5 4.79 6.79 3 9 3H11C13.21 3 15 4.79 15 7V9H16C16.55 9 17 9.45 17 10V18C17 18.55 16.55 19 16 19H4C3.45 19 3 18.55 3 18V10C3 9.45 3.45 9 4 9H5Z"/>
+                            </svg>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="input-field"
+                                placeholder="建立一個強密碼"
+                                required
+                                minlength="8"
+                            >
+                            <button type="button" class="password-toggle">
+                                <svg class="toggle-icon" viewBox="0 0 20 20">
+                                    <path d="M10 4C5 4 1.73 7.11 1 10C1.73 12.89 5 16 10 16S18.27 12.89 19 10C18.27 7.11 15 4 10 4Z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <div class="strength-text" id="strengthText">請輸入密碼</div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="confirmPassword" class="input-label">確認密碼 *</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 20 20">
+                                <path d="M5 9V7C5 4.79 6.79 3 9 3H11C13.21 3 15 4.79 15 7V9H16C16.55 9 17 9.45 17 10V18C17 18.55 16.55 19 16 19H4C3.45 19 3 18.55 3 18V10C3 9.45 3.45 9 4 9H5Z"/>
+                            </svg>
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                class="input-field"
+                                placeholder="再次輸入密碼"
+                                required
+                            >
+                            <div class="field-status" id="confirmPasswordStatus"></div>
+                        </div>
+                    </div>
+
+                    <div class="terms-section">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" class="checkbox" id="agreeTerms" required>
+                            <span class="checkmark"></span>
+                            <span class="checkbox-label">
+                                我同意 <a href="#" target="_blank" class="link">服務條款</a>
+                                和 <a href="#" target="_blank" class="link">隱私政策</a>
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        繼續
+                        <svg class="button-icon" viewBox="0 0 20 20">
+                            <path d="M12.95 10.707L8.414 15.242L9.828 16.656L16.485 9.999L9.828 3.343L8.414 4.757L12.95 10.707Z"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 步驟2: 信箱驗證 -->
+            <div class="register-step" data-step="2">
+                <div class="verification-content">
+                    <div class="verification-icon">
+                        <svg viewBox="0 0 64 64">
+                            <path d="M32 2L6 12V20C6 38 16 52 32 58C48 52 58 38 58 20V12L32 2Z" fill="var(--primary-100)"/>
+                            <path d="M22 30L30 38L44 24" stroke="var(--primary-500)" stroke-width="3" fill="none"/>
+                        </svg>
+                    </div>
+                    <h3>驗證您的信箱</h3>
+                    <p class="verification-text">
+                        我們已發送驗證信件到<br>
+                        <strong id="verificationEmail">example@company.com</strong>
+                    </p>
+                    <p class="verification-hint">
+                        請檢查您的收件匣（包括垃圾信件匣），並點擊信件中的驗證連結。
+                    </p>
+
+                    <div class="verification-actions">
+                        <button type="button" class="secondary-button" id="resendEmail">
+                            <svg class="button-icon" viewBox="0 0 20 20">
+                                <path d="M4 2V8H10M10 2V8H16M20 12A8 8 0 11-4 12 8 8 0 0120 12Z"/>
+                            </svg>
+                            重新發送
+                        </button>
+                        <button type="button" class="secondary-button" id="changeEmail">
+                            <svg class="button-icon" viewBox="0 0 20 20">
+                                <path d="M11 5H6C5.45 5 5 5.45 5 6V14C5 14.55 5.45 15 6 15H11"/>
+                            </svg>
+                            更改信箱
+                        </button>
+                    </div>
+
+                    <div class="countdown-text">
+                        <span id="resendCountdown">30秒後可重新發送</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步驟3: 完成註冊 -->
+            <div class="register-step" data-step="3">
+                <div class="success-content">
+                    <div class="success-icon">
+                        <svg viewBox="0 0 64 64">
+                            <circle cx="32" cy="32" r="28" fill="var(--success-100)"/>
+                            <path d="M20 32L28 40L44 24" stroke="var(--success-500)" stroke-width="4" fill="none"/>
+                        </svg>
+                    </div>
+                    <h3>註冊成功！</h3>
+                    <p class="success-text">
+                        歡迎加入 DevAuth 開發者社群！<br>
+                        您的帳號已成功建立並通過驗證。
+                    </p>
+
+                    <div class="user-info">
+                        <div class="info-item">
+                            <span class="info-label">使用者名稱：</span>
+                            <span class="info-value" id="finalUsername">johndoe</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">電子信箱：</span>
+                            <span class="info-value" id="finalEmail">john@company.com</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">角色權限：</span>
+                            <span class="info-value">訪客 (Guest)</span>
+                        </div>
+                    </div>
+
+                    <div class="next-steps">
+                        <h4>接下來您可以：</h4>
+                        <ul>
+                            <li>設定您的個人資料</li>
+                            <li>探索開發者工具</li>
+                            <li>加入專案團隊</li>
+                            <li>開始您的第一個專案</li>
+                        </ul>
+                    </div>
+
+                    <button type="button" class="submit-button" onclick="window.location.href='login.html'">
+                        前往登入
+                        <svg class="button-icon" viewBox="0 0 20 20">
+                            <path d="M12.95 10.707L8.414 15.242L9.828 16.656L16.485 9.999L9.828 3.343L8.414 4.757L12.95 10.707Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 返回登入 -->
+            <div class="back-to-login">
+                <p>已經有帳號了？<a href="login.html" class="link">立即登入</a></p>
+            </div>
+
+            <!-- 訊息容器 -->
+            <div class="message-container" id="messageContainer"></div>
+        </div>
+    </div>
+
+    <script src="assets/js/register.js"></script>
+</body>
+</html>
