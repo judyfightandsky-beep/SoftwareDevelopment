@@ -4,8 +4,8 @@
 
 ```
 SpecDriveDevelop/CodingDrive/
-├── 📁 DevAuth.API/              # 🎯 主要專案：身份驗證 API
-│   ├── DevAuth.sln              # Visual Studio 解決方案檔案
+├── 📁 SoftwareDevelopment.API/   # 🎯 主要專案：軟體開發專案管理平台
+│   ├── SoftwareDevelopment.sln  # Visual Studio 解決方案檔案
 │   ├── README.md                # 專案說明文檔
 │   ├── 📁 docs/                 # 專案專屬文檔
 │   │   ├── README.md            # 文檔索引
@@ -22,12 +22,12 @@ SpecDriveDevelop/CodingDrive/
 │   ├── CSharp_Code_Examples.md        # C# 程式碼範例
 │   ├── DDD_Architecture_Overview.md   # DDD 架構概述
 │   ├── UI-Design-System.md            # UI 設計系統
+│   ├── Agent-Collaboration-Guide.md   # 📋 代理協作流程指南
+│   ├── Development-Framework.md       # 🚀 系統開發框架
+│   ├── Domain_Model_Design.md         # 🏗️ 領域模型設計
+│   ├── Domain_Services_And_Events.md  # ⚙️ 領域服務與事件設計
 │   └── 📁 archived-guides/     # 歷史文檔存檔
-│       ├── Agent-Collaboration-Guide.md
 │       ├── Application_Layer_Design.md
-│       ├── Development-Framework.md
-│       ├── Domain_Model_Design.md
-│       ├── Domain_Services_And_Events.md
 │       ├── Interface_Contracts.md
 │       └── UML-Diagrams.md
 │
@@ -59,11 +59,12 @@ SpecDriveDevelop/CodingDrive/
 
 ## 🎯 目前專案狀態
 
-### 主要專案：DevAuth.API
+### 主要專案：SoftwareDevelopment.API
 - **狀態**: ✅ 可正常編譯與執行
 - **架構**: DDD 4層架構
 - **資料庫**: PostgreSQL (已建立並遷移)
-- **功能**: 使用者註冊、基本 API 端點
+- **當前功能**: 使用者身份管理系統（第一階段）
+- **完整願景**: 軟體開發專案管理平台
 
 ### 開發資源
 - **編程指南**: `docs/CSharp-Coding-Guidelines.md`
@@ -72,13 +73,21 @@ SpecDriveDevelop/CodingDrive/
 
 ## 📝 建議
 
-1. **專注開發**: 主要開發工作集中在 `DevAuth.API/` 專案
-2. **文檔維護**: 更新相關文檔時優先修改 `DevAuth.API/docs/` 中的專案專屬文檔
+1. **專注開發**: 主要開發工作集中在 `SoftwareDevelopment.API/` 專案
+2. **文檔維護**: 更新相關文檔時優先修改 `SoftwareDevelopment.API/docs/` 中的專案專屬文檔
 3. **原型參考**: UI 開發時可參考 `ui-prototype/` 中的前端原型
+4. **階段性開發**: 當前專注於使用者身份管理，後續擴展為完整平台
 
 ## 🔄 下一步開發重點
 
+### 第一階段：使用者身份管理 (進行中)
 1. 實作使用者登入功能
 2. 完善 JWT 身份驗證
 3. 實作電子信箱驗證
 4. 開發使用者管理介面
+
+### 後續階段：平台功能擴展
+1. 專案與任務管理系統
+2. 專案模板與 AI 輔助
+3. Git 整合與工作流程自動化
+4. 協作工具與報表系統
