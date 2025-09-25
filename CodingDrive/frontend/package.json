@@ -1,0 +1,20 @@
+{
+  "name": "software-development-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:host\" \"npm run dev:auth\" \"npm run dev:dashboard\"",
+    "dev:host": "cd apps/host && npm run dev",
+    "dev:auth": "cd apps/auth && npm run dev",
+    "dev:dashboard": "cd apps/dashboard && npm run dev",
+    "build": "npm run build:auth && npm run build:dashboard && npm run build:host",
+    "build:auth": "cd apps/auth && npm run build",
+    "build:dashboard": "cd apps/dashboard && npm run build",
+    "build:host": "cd apps/host && npm run build",
+    "install:all": "npm install && npm run install:apps",
+    "install:apps": "cd apps/host && npm install && cd ../auth && npm install && cd ../dashboard && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

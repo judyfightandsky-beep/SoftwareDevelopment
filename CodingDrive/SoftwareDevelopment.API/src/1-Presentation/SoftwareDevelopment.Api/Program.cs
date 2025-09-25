@@ -13,15 +13,11 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// 配置服務
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 // 註冊應用程式服務
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddPresentation();
+builder.Services.AddCorsPolicy(builder.Configuration);
 
 var app = builder.Build();
 
@@ -29,7 +25,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "SoftwareDevelopment API v1");
+        options.RoutePrefix = "swagger";
+        options.DisplayRequestDuration();
+        options.EnableTryItOutByDefault();
+    });
 }
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
@@ -39,7 +41,16 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseCors();
 app.MapControllers();
+
+// 只在有靜態檔案目錄時才使用 fallback
+var webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+if (Directory.Exists(webRootPath))
+{
+    app.UseStaticFiles();
+    app.MapFallbackToFile("index.html");
+}
 
 try
 {

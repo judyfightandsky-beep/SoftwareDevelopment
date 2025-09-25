@@ -100,7 +100,7 @@ public static class ServiceCollectionExtensions
             })
             .AddJwtBearer(options =>
             {
-                options.RequireHttpsMetadata = true;
+                options.RequireHttpsMetadata = false; // 開發模式允許 HTTP
                 options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
