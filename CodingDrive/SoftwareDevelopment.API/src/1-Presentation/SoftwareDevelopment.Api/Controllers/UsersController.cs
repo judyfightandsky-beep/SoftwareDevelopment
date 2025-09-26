@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SoftwareDevelopment.Application.Users.Register;
+using SoftwareDevelopment.Application.Users.Login;
 
 namespace SoftwareDevelopment.Api.Controllers;
 
@@ -78,6 +79,55 @@ public sealed class UsersController : ControllerBase
         _logger.LogInformation("User registered successfully with ID: {UserId}", result.Value!.UserId);
 
         return Created($"/api/users/{result.Value.UserId}", result.Value);
+    }
+
+    /// <summary>
+    /// 使用者登入
+    /// </summary>
+    /// <param name="request">登入請求</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>登入結果</returns>
+    /// <response code="200">登入成功</response>
+    /// <response code="400">請求參數無效</response>
+    /// <response code="401">驗證失敗</response>
+    [HttpPost("login")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> LoginAsync(
+        [FromBody] LoginUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Processing user login for email: {Email}", request.Email);
+
+        var command = new LoginUserCommand(
+            request.Email,
+            request.Password);
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            _logger.LogWarning("User login failed: {Error}", result.Error.Message);
+
+            return result.Error.Code switch
+            {
+                "USER.INVALID_CREDENTIALS" => Unauthorized(new
+                {
+                    error = result.Error.Code,
+                    message = result.Error.Message
+                }),
+                _ => BadRequest(new
+                {
+                    error = result.Error.Code,
+                    message = result.Error.Message
+                })
+            };
+        }
+
+        _logger.LogInformation("User logged in successfully: {Email}", request.Email);
+
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -169,3 +219,12 @@ public sealed record RegisterUserRequest(
     string LastName,
     string Password,
     string ConfirmPassword);
+
+/// <summary>
+/// 使用者登入請求
+/// </summary>
+/// <param name="Email">電子信箱</param>
+/// <param name="Password">密碼</param>
+public sealed record LoginUserRequest(
+    string Email,
+    string Password);

@@ -1,7 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
+import {
+  UserRegistrationRequest,
+  UserRegistrationResponse,
+  UserRole,
+  UserStatus
+} from '../types/auth';
+import { apiRequest, API_CONFIG } from '../config/apiConfig';
 
 interface RegisterFormProps {
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: UserRegistrationResponse) => void;
   onError?: (error: string) => void;
 }
 
@@ -74,11 +81,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }
 
     setUsernameStatus('checking');
 
-    // 模擬API檢查
-    setTimeout(() => {
-      const taken = ['admin', 'user', 'test', 'demo'].includes(username.toLowerCase());
-      setUsernameStatus(taken ? 'taken' : 'available');
-    }, 500);
+    try {
+      const response = await apiRequest(`${API_CONFIG.ENDPOINTS.CHECK_USERNAME}`, 'POST', { username });
+
+      if (response.success) {
+        setUsernameStatus(response.data.available ? 'available' : 'taken');
+      } else {
+        setUsernameStatus('idle');
+      }
+    } catch (error) {
+      console.error('Username availability check failed:', error);
+      setUsernameStatus('idle');
+    }
   };
 
   // 檢查信箱可用性（模擬）
@@ -88,13 +102,28 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }
       return;
     }
 
+    // 更複雜的email驗證
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      setEmailStatus('invalid');
+      return;
+    }
+
     setEmailStatus('checking');
 
-    // 模擬API檢查
-    setTimeout(() => {
-      const taken = ['test@example.com', 'admin@example.com'].includes(email.toLowerCase());
-      setEmailStatus(taken ? 'taken' : 'available');
-    }, 500);
+    try {
+      const response = await apiRequest(API_CONFIG.ENDPOINTS.CHECK_EMAIL, 'POST', { email });
+
+      if (response.success) {
+        setEmailStatus(response.data.available ? 'available' : 'taken');
+      } else {
+        setEmailStatus('idle');
+        // 可以加入錯誤通知
+      }
+    } catch (error) {
+      console.error('Email availability check failed:', error);
+      setEmailStatus('idle');
+    }
   };
 
   // 表單輸入處理
@@ -122,13 +151,24 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }
   const validateStep1 = (): boolean => {
     const newErrors: Partial<FormData> = {};
 
-    if (!formData.firstName.trim()) newErrors.firstName = '請輸入名字';
-    if (!formData.lastName.trim()) newErrors.lastName = '請輸入姓氏';
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = '請輸入名字';
+    } else if (formData.firstName.length < 2) {
+      newErrors.firstName = '名字至少需要2個字元';
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = '請輸入姓氏';
+    } else if (formData.lastName.length < 2) {
+      newErrors.lastName = '姓氏至少需要2個字元';
+    }
 
     if (!formData.username.trim()) {
       newErrors.username = '請輸入使用者名稱';
-    } else if (formData.username.length < 3) {
-      newErrors.username = '使用者名稱至少需要3個字元';
+    } else if (formData.username.length < 3 || formData.username.length > 20) {
+      newErrors.username = '使用者名稱需介於3-20個字元';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      newErrors.username = '使用者名稱只能包含字母、數字和下底線';
     } else if (usernameStatus === 'taken') {
       newErrors.username = '此使用者名稱已被使用';
     }
@@ -137,12 +177,16 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }
       newErrors.email = '請輸入電子信箱';
     } else if (emailStatus === 'taken') {
       newErrors.email = '此信箱已被註冊';
+    } else if (emailStatus === 'invalid') {
+      newErrors.email = '請輸入有效的電子信箱';
     }
 
     if (!formData.password) {
       newErrors.password = '請輸入密碼';
     } else if (formData.password.length < 8) {
       newErrors.password = '密碼至少需要8個字元';
+    } else if (formData.password.length > 50) {
+      newErrors.password = '密碼不能超過50個字元';
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -164,27 +208,24 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5555/api/Users/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          password: formData.password,
-          confirmPassword: formData.confirmPassword,
-        }),
-      });
+      const registrationData: UserRegistrationRequest = {
+        username: formData.username,
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+      };
 
-      if (response.ok) {
-        const result = await response.json();
+      const response = await apiRequest(API_CONFIG.ENDPOINTS.REGISTER, 'POST', registrationData);
+
+      if (response.success) {
+        const result: UserRegistrationResponse = response.data;
         console.log('註冊API回應:', result);
         setCurrentStep(2); // 進入驗證步驟
         if (onSuccess) onSuccess(result);
       } else {
-        const error = await response.json();
-        throw new Error(error.message || '註冊失敗');
+        throw new Error(response.message || '註冊失敗');
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '註冊失敗';
@@ -644,21 +685,62 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setCurrentStep(3)} // 模擬驗證成功
-            style={{
-              backgroundColor: '#10b981',
-              color: 'white',
-              border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              fontSize: '0.875rem',
-              cursor: 'pointer'
-            }}
-          >
-            模擬驗證成功 (測試用)
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+          <div style={{ backgroundColor: '#f3f4f6', padding: '1rem', borderRadius: '8px', textAlign: 'left' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '1rem' }}>驗證碼已發送</h4>
+            <p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
+              請在 15 分鐘內完成驗證。如未收到信件，請檢查垃圾信件匣。
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const resendResponse = await apiRequest(API_CONFIG.ENDPOINTS.RESEND_VERIFICATION, 'POST', { email: formData.email });
+
+                  if (resendResponse.success) {
+                    setCurrentStep(2);  // Ensure user remains on verification screen
+                    alert(resendResponse.data.message || '驗證信已重新發送');
+                  } else {
+                    alert(resendResponse.message || '重新發送失敗，請稍後再試');
+                  }
+                } catch (error) {
+                  console.error('Resend verification error:', error);
+                  alert('網路錯誤，請檢查您的網路連線');
+                }
+              }}
+              style={{
+                flex: 1,
+                backgroundColor: '#f3f4f6',
+                color: '#374151',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '6px',
+                fontSize: '0.875rem',
+                cursor: 'pointer'
+              }}
+            >
+              重新發送驗證信
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentStep(1)}
+              style={{
+                flex: 1,
+                backgroundColor: '#f3f4f6',
+                color: '#374151',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '6px',
+                fontSize: '0.875rem',
+                cursor: 'pointer'
+              }}
+            >
+              更改信箱
+            </button>
+          </div>
+        </div>
         </div>
       )}
 
@@ -710,7 +792,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }
 
           <button
             type="button"
-            onClick={() => alert('跳轉到登入頁面')}
+            onClick={() => window.location.href = '/login'}
             style={{
               width: '100%',
               padding: '0.875rem 1.5rem',
