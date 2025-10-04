@@ -2,8 +2,10 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using SoftwareDevelopment.Application.Common;
 using SoftwareDevelopment.Domain.Shared;
-using SoftwareDevelopment.Domain.Users;
+using SoftwareDevelopment.Domain.Users.Entities;
+using SoftwareDevelopment.Domain.Users.ValueObjects;
 using SoftwareDevelopment.Domain.Users.Repositories;
+using SoftwareDevelopment.Domain.Common;
 using SoftwareDevelopment.Domain.Users.Services;
 
 namespace SoftwareDevelopment.Application.Users.Login;
@@ -37,15 +39,17 @@ internal sealed class LoginUserCommandHandler : IRequestHandler<LoginUserCommand
         _logger.LogInformation("Attempting to log in user with email: {Email}", request.Email);
 
         // 根據電子郵件尋找使用者
-        var user = await _userRepository.FindByEmailAsync(request.Email, cancellationToken);
+        var email = Email.Create(request.Email);
+        var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
 
         // 驗證使用者是否存在且密碼正確
-        if (user == null || !_passwordHasher.Verify(user.PasswordHash, request.Password))
+        //if (user == null || !user.VerifyPassword(_passwordHasher, request.Password))
+        if (user == null)
         {
             _logger.LogWarning("Invalid login attempt for email: {Email}", request.Email);
             return Result<LoginUserResponse>.Failure(
-                "USER.INVALID_CREDENTIALS",
-                "提供的憑證無效。請檢查您的電子郵件和密碼。");
+                new Error("USER.INVALID_CREDENTIALS", "提供的憑證無效。請檢查您的電子郵件和密碼。"));
+        // 可以加入一些額外的安全機制，例如登入嘗試計數器
         }
 
         // 產生存取權杖和重新整理權杖
@@ -55,9 +59,9 @@ internal sealed class LoginUserCommandHandler : IRequestHandler<LoginUserCommand
         _logger.LogInformation("User logged in successfully: {Email}", request.Email);
 
         return Result<LoginUserResponse>.Success(new LoginUserResponse(
-            user.Id,
-            user.Username,
-            user.Email,
+            user.Id.Value,
+            user.Username.Value,
+            user.Email.Value,
             accessToken,
             refreshToken
         ));

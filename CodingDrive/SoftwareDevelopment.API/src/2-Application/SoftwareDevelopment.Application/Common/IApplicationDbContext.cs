@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using SoftwareDevelopment.Domain.Users;
+using SoftwareDevelopment.Domain.Users.Entities;
+using SoftwareDevelopment.Domain.Templates.Entities;
+using SoftwareDevelopment.Domain.Tasks.Entities;
 
 namespace SoftwareDevelopment.Application.Common;
 
@@ -13,6 +15,21 @@ public interface IApplicationDbContext
     /// 使用者實體集
     /// </summary>
     DbSet<User> Users { get; }
+
+    /// <summary>
+    /// 驗證權杖實體集
+    /// </summary>
+    DbSet<VerificationToken> VerificationTokens { get; }
+
+    /// <summary>
+    /// 專案模板實體集
+    /// </summary>
+    DbSet<ProjectTemplate> ProjectTemplates { get; }
+
+    /// <summary>
+    /// 任務實體集
+    /// </summary>
+    DbSet<SoftwareDevelopment.Domain.Tasks.Entities.Task> Tasks { get; }
 
     /// <summary>
     /// 儲存變更

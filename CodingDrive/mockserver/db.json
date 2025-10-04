@@ -1,0 +1,421 @@
+{
+  "users": [
+    {
+      "id": "user-1",
+      "name": "張明",
+      "email": "ming.zhang@example.com",
+      "role": "TechLead",
+      "password": "$2a$10$K8f5QnWg.uFqAGO4dE7C6O4gX7HLhE7.4BxFqgGZ8oCXd1pD3jLTW",
+      "status": "Active",
+      "createdAt": "2024-01-15T08:00:00Z",
+      "updatedAt": "2024-09-20T10:30:00Z"
+    },
+    {
+      "id": "user-2",
+      "name": "李小華",
+      "email": "xiaohua.li@example.com",
+      "role": "Developer",
+      "password": "$2a$10$K8f5QnWg.uFqAGO4dE7C6O4gX7HLhE7.4BxFqgGZ8oCXd1pD3jLTW",
+      "status": "Active",
+      "createdAt": "2024-02-01T09:15:00Z",
+      "updatedAt": "2024-09-19T14:20:00Z"
+    },
+    {
+      "id": "user-3",
+      "name": "王大明",
+      "email": "daming.wang@example.com",
+      "role": "ProjectManager",
+      "password": "$2a$10$K8f5QnWg.uFqAGO4dE7C6O4gX7HLhE7.4BxFqgGZ8oCXd1pD3jLTW",
+      "status": "Active",
+      "createdAt": "2024-01-20T11:00:00Z",
+      "updatedAt": "2024-09-21T16:45:00Z"
+    }
+  ],
+  "templates": [
+    {
+      "id": "template-1",
+      "name": "領域驅動設計 (DDD) 範本",
+      "description": "完整的領域驅動設計架構範本，包含實體、值對象、倉儲模式等",
+      "type": "DDD",
+      "status": "Active",
+      "techStack": {
+        "framework": ".NET Core",
+        "version": "8.0",
+        "database": "PostgreSQL",
+        "runtime": ".NET 8",
+        "libraries": ["Entity Framework Core", "MediatR", "AutoMapper", "FluentValidation"]
+      },
+      "modules": [
+        {
+          "id": "mod-1",
+          "name": "領域模型",
+          "description": "核心業務邏輯和實體定義",
+          "isRequired": true,
+          "dependencies": [],
+          "settings": {
+            "includeSampleEntities": true,
+            "includeValueObjects": true
+          }
+        },
+        {
+          "id": "mod-2",
+          "name": "應用服務",
+          "description": "應用層邏輯和命令查詢處理",
+          "isRequired": true,
+          "dependencies": ["mod-1"],
+          "settings": {
+            "useCQRS": true,
+            "includeMediatR": true
+          }
+        },
+        {
+          "id": "mod-3",
+          "name": "基礎設施層",
+          "description": "數據持久化和外部服務整合",
+          "isRequired": true,
+          "dependencies": ["mod-1"],
+          "settings": {
+            "includeRepository": true,
+            "includeUnitOfWork": true
+          }
+        }
+      ],
+      "metadata": {
+        "downloadCount": 1250,
+        "averageRating": 4.7,
+        "lastUsed": "2024-09-20T14:30:00Z",
+        "tags": ["DDD", "Clean Architecture", ".NET", "Enterprise"]
+      },
+      "createdAt": "2024-01-10T10:00:00Z",
+      "updatedAt": "2024-09-15T16:20:00Z",
+      "createdBy": "user-1",
+      "updatedBy": "user-1"
+    },
+    {
+      "id": "template-2",
+      "name": "微服務架構範本",
+      "description": "可擴展的微服務架構，包含 API Gateway、服務發現等",
+      "type": "Microservices",
+      "status": "Active",
+      "techStack": {
+        "framework": "Spring Boot",
+        "version": "3.2",
+        "database": "MongoDB",
+        "runtime": "Java 17",
+        "libraries": ["Spring Cloud", "Netflix Eureka", "Spring Security", "Docker"]
+      },
+      "modules": [
+        {
+          "id": "mod-4",
+          "name": "API Gateway",
+          "description": "統一的API入口點",
+          "isRequired": true,
+          "dependencies": [],
+          "settings": {
+            "includeRateLimiting": true,
+            "includeAuthentication": true
+          }
+        },
+        {
+          "id": "mod-5",
+          "name": "服務發現",
+          "description": "自動服務註冊和發現",
+          "isRequired": true,
+          "dependencies": ["mod-4"],
+          "settings": {
+            "useEureka": true,
+            "includeHealthCheck": true
+          }
+        }
+      ],
+      "metadata": {
+        "downloadCount": 890,
+        "averageRating": 4.5,
+        "lastUsed": "2024-09-18T11:15:00Z",
+        "tags": ["Microservices", "Spring Boot", "Docker", "Cloud"]
+      },
+      "createdAt": "2024-02-05T09:30:00Z",
+      "updatedAt": "2024-09-10T13:45:00Z",
+      "createdBy": "user-2",
+      "updatedBy": "user-2"
+    },
+    {
+      "id": "template-3",
+      "name": "Clean Architecture 範本",
+      "description": "遵循 Clean Architecture 原則的應用程式架構",
+      "type": "CleanArchitecture",
+      "status": "Active",
+      "techStack": {
+        "framework": "React",
+        "version": "18.2",
+        "database": "SQLite",
+        "runtime": "Node.js 18",
+        "libraries": ["TypeScript", "Zustand", "React Query", "Tailwind CSS"]
+      },
+      "modules": [
+        {
+          "id": "mod-6",
+          "name": "前端組件",
+          "description": "可重用的UI組件庫",
+          "isRequired": true,
+          "dependencies": [],
+          "settings": {
+            "includeStorybook": true,
+            "includeTesting": true
+          }
+        }
+      ],
+      "metadata": {
+        "downloadCount": 567,
+        "averageRating": 4.3,
+        "lastUsed": "2024-09-22T09:00:00Z",
+        "tags": ["Clean Architecture", "React", "TypeScript", "Frontend"]
+      },
+      "createdAt": "2024-03-01T14:00:00Z",
+      "updatedAt": "2024-09-22T09:00:00Z",
+      "createdBy": "user-3",
+      "updatedBy": "user-3"
+    }
+  ],
+  "projects": [
+    {
+      "id": "project-1",
+      "name": "電商平台開發",
+      "description": "基於微服務架構的電商平台",
+      "templateId": "template-2",
+      "repositoryUrl": "https://github.com/company/ecommerce-platform",
+      "status": "Active",
+      "createdAt": "2024-08-01T10:00:00Z",
+      "createdBy": "user-3"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "taskNumber": "TASK-001",
+      "title": "實作用戶認證模組",
+      "description": "開發完整的用戶登入、註冊和權限管理功能",
+      "type": "Feature",
+      "priority": "High",
+      "status": "InProgress",
+      "projectId": "project-1",
+      "assignedTo": "user-2",
+      "createdBy": "user-3",
+      "createdAt": "2024-09-01T09:00:00Z",
+      "dueDate": "2024-09-30T17:00:00Z",
+      "estimatedHours": 40,
+      "actualHours": 20,
+      "progress": 60,
+      "gitLabInfo": {
+        "issueId": 123,
+        "issueUrl": "https://gitlab.com/project/issues/123",
+        "mergeRequestId": 45,
+        "branchName": "feature/user-authentication"
+      }
+    },
+    {
+      "id": "task-2",
+      "taskNumber": "TASK-002",
+      "title": "修復購物車計算錯誤",
+      "description": "修復當商品有折扣時的總價計算問題",
+      "type": "Bug",
+      "priority": "Critical",
+      "status": "Todo",
+      "projectId": "project-1",
+      "assignedTo": "user-1",
+      "createdBy": "user-3",
+      "createdAt": "2024-09-15T14:30:00Z",
+      "dueDate": "2024-09-25T17:00:00Z",
+      "estimatedHours": 8,
+      "progress": 0
+    }
+  ],
+  "qualityChecks": [
+    {
+      "id": "check-1",
+      "projectId": "project-1",
+      "commitHash": "abc123def456",
+      "branchName": "feature/user-authentication",
+      "trigger": "CommitPush",
+      "status": "Completed",
+      "startedAt": "2024-09-20T10:00:00Z",
+      "completedAt": "2024-09-20T10:15:00Z",
+      "overallScore": {
+        "score": 85,
+        "codeStyle": 90,
+        "complexity": 75,
+        "security": 95,
+        "performance": 80,
+        "testCoverage": 70,
+        "grade": "B"
+      },
+      "issues": [
+        {
+          "id": "issue-1",
+          "ruleId": "complexity-001",
+          "severity": "Medium",
+          "category": "Complexity",
+          "title": "函數複雜度過高",
+          "description": "函數 calculateDiscount 的循環複雜度為 12，建議重構",
+          "fileName": "src/services/discount.service.ts",
+          "lineNumber": 45,
+          "columnNumber": 10,
+          "codeSnippet": "function calculateDiscount(items: CartItem[]) {\n  // 複雜的折扣計算邏輯\n}",
+          "suggestion": "將複雜邏輯拆分為多個小函數",
+          "isFixed": false,
+          "detectedAt": "2024-09-20T10:05:00Z"
+        }
+      ],
+      "metrics": [
+        {
+          "type": "coverage",
+          "name": "代碼覆蓋率",
+          "value": 70,
+          "unit": "%",
+          "trend": "Improving"
+        },
+        {
+          "type": "complexity",
+          "name": "平均複雜度",
+          "value": 3.2,
+          "unit": "點",
+          "trend": "Stable"
+        }
+      ],
+      "requestedBy": "user-2"
+    }
+  ],
+  "workflows": [
+    {
+      "id": "workflow-1",
+      "name": "代碼審查流程",
+      "description": "標準的代碼審查和合併流程",
+      "version": "1.0",
+      "status": "Active",
+      "nodes": [
+        {
+          "id": "node-1",
+          "name": "開始",
+          "type": "Start",
+          "configuration": {},
+          "inputs": [],
+          "outputs": ["node-2"],
+          "isRequired": true
+        },
+        {
+          "id": "node-2",
+          "name": "代碼審查",
+          "type": "Human",
+          "configuration": {
+            "reviewerRole": "TechLead"
+          },
+          "inputs": ["node-1"],
+          "outputs": ["node-3", "node-4"],
+          "isRequired": true,
+          "timeLimit": 48,
+          "assignedRoles": ["TechLead"]
+        },
+        {
+          "id": "node-3",
+          "name": "審查通過",
+          "type": "Decision",
+          "configuration": {},
+          "inputs": ["node-2"],
+          "outputs": ["node-5"],
+          "isRequired": true
+        },
+        {
+          "id": "node-4",
+          "name": "需要修改",
+          "type": "Decision",
+          "configuration": {},
+          "inputs": ["node-2"],
+          "outputs": ["node-1"],
+          "isRequired": true
+        },
+        {
+          "id": "node-5",
+          "name": "合併代碼",
+          "type": "Service",
+          "configuration": {
+            "serviceType": "GitMerge"
+          },
+          "inputs": ["node-3"],
+          "outputs": ["node-6"],
+          "isRequired": true
+        },
+        {
+          "id": "node-6",
+          "name": "結束",
+          "type": "End",
+          "configuration": {},
+          "inputs": ["node-5"],
+          "outputs": [],
+          "isRequired": true
+        }
+      ],
+      "transitions": [
+        {
+          "id": "trans-1",
+          "fromNodeId": "node-1",
+          "toNodeId": "node-2",
+          "condition": "",
+          "name": "提交審查",
+          "type": "Standard"
+        },
+        {
+          "id": "trans-2",
+          "fromNodeId": "node-2",
+          "toNodeId": "node-3",
+          "condition": "approved == true",
+          "name": "審查通過",
+          "type": "Conditional"
+        },
+        {
+          "id": "trans-3",
+          "fromNodeId": "node-2",
+          "toNodeId": "node-4",
+          "condition": "approved == false",
+          "name": "需要修改",
+          "type": "Conditional"
+        }
+      ],
+      "trigger": "Manual",
+      "createdAt": "2024-08-15T11:00:00Z",
+      "createdBy": "user-1"
+    }
+  ],
+  "workflowInstances": [
+    {
+      "id": "instance-1",
+      "workflowDefinitionId": "workflow-1",
+      "title": "用戶認證模組代碼審查",
+      "status": "Running",
+      "variables": {
+        "pullRequestId": "45",
+        "reviewer": "user-1"
+      },
+      "nodeExecutions": [
+        {
+          "id": "exec-1",
+          "nodeId": "node-1",
+          "status": "Completed",
+          "startedAt": "2024-09-20T09:00:00Z",
+          "completedAt": "2024-09-20T09:01:00Z",
+          "executedBy": "user-2"
+        },
+        {
+          "id": "exec-2",
+          "nodeId": "node-2",
+          "status": "Running",
+          "startedAt": "2024-09-20T09:01:00Z",
+          "assignedTo": "user-1"
+        }
+      ],
+      "startedAt": "2024-09-20T09:00:00Z",
+      "startedBy": "user-2",
+      "projectId": "project-1",
+      "taskId": "task-1"
+    }
+  ]
+}

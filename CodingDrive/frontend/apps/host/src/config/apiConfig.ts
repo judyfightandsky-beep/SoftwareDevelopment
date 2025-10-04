@@ -22,9 +22,11 @@ export const handleNetworkError = (error: Error) => {
 export const apiRequest = async (
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'POST',
-  body?: any
+  body?: any,
+  globalState?: { setLoading: (loading: boolean) => void; setErrorMessage: (message: string | null) => void }
 ) => {
   try {
+    globalState?.setLoading(true);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
 
@@ -45,11 +47,16 @@ export const apiRequest = async (
       throw new Error(errorData.message || 'An error occurred');
     }
 
+    const data = await response.json();
+    globalState?.setLoading(false);
     return {
       success: true,
-      data: await response.json()
+      data
     };
   } catch (error) {
-    return handleNetworkError(error as Error);
+    globalState?.setLoading(false);
+    const errorResult = handleNetworkError(error as Error);
+    globalState?.setErrorMessage(errorResult.message);
+    return errorResult;
   }
 };

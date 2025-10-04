@@ -10,7 +10,8 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
 {
     protected Entity(TId id)
     {
-        Id = id ?? throw new ArgumentNullException(nameof(id));
+        Id = id;
+        //Id = id ?? throw new ArgumentNullException(nameof(id));
     }
 
     /// <summary>

@@ -1,13 +1,34 @@
 export interface LoginRequest {
-    username: string;
+    email: string;
     password: string;
 }
 
 export interface LoginResponse {
-    token: string;
     userId: string;
     username: string;
     email: string;
+    accessToken: string;
+    refreshToken: string;
+}
+
+export interface LoginResponseLegacy {
+    accessToken: string;
+    refreshToken: string;
+    tokenType: string;
+    expiresIn: number;
+    user: UserResponse;
+}
+
+export interface UserResponse {
+    id: string;
+    username: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    isEmailVerified: boolean;
+    createdAt: string;
+    lastLoginAt?: string;
 }
 
 export interface AuthErrorResponse {
@@ -38,10 +59,9 @@ export interface UserRegistrationResponse {
     userId: string;
     username: string;
     email: string;
-    firstName: string;
-    lastName: string;
-    role: UserRole;
-    status: UserStatus;
+    role: string;
+    status: string;
+    requiresApproval: boolean;
 }
 
 export enum UserRole {
@@ -54,4 +74,17 @@ export enum UserStatus {
     Pending = 'PENDING',
     Active = 'ACTIVE',
     Suspended = 'SUSPENDED'
+}
+
+export interface PasswordResetRequest {
+    email: string;
+}
+
+export interface PasswordResetConfirmRequest {
+    token: string;
+    newPassword: string;
+}
+
+export interface EmailVerificationRequest {
+    token: string;
 }

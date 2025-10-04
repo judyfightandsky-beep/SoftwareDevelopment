@@ -1,7 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using SoftwareDevelopment.Application.Common;
-using SoftwareDevelopment.Domain.Users;
-using SoftwareDevelopment.Infrastructure.Persistence.Configurations;
+using SoftwareDevelopment.Domain.Users.Entities;
+using SoftwareDevelopment.Domain.Users.ValueObjects;
+using SoftwareDevelopment.Domain.Templates.Entities;
+using SoftwareDevelopment.Domain.Tasks.Entities;
+using SoftwareDevelopment.Domain.Templates.ValueObjects;
+using SoftwareDevelopment.Domain.Tasks.ValueObjects;
+using SoftwareDevelopment.Domain.Shared.ValueObjects;
 
 namespace SoftwareDevelopment.Infrastructure.Persistence;
 
@@ -25,11 +30,33 @@ public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<User> Users => Set<User>();
 
     /// <summary>
+    /// 驗證權杖實體集
+    /// </summary>
+    public DbSet<VerificationToken> VerificationTokens => Set<VerificationToken>();
+
+    /// <summary>
+    /// 專案模板實體集
+    /// </summary>
+    public DbSet<ProjectTemplate> ProjectTemplates => Set<ProjectTemplate>();
+
+    /// <summary>
+    /// 任務實體集
+    /// </summary>
+    public DbSet<SoftwareDevelopment.Domain.Tasks.Entities.Task> Tasks => Set<SoftwareDevelopment.Domain.Tasks.Entities.Task>();
+
+    /// <summary>
     /// 配置模型
     /// </summary>
     /// <param name="modelBuilder">模型建構器</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // 忽略值物件類型，避免 EF Core 將其視為實體
+        modelBuilder.Ignore<UserId>();
+        modelBuilder.Ignore<VerificationTokenId>();
+        modelBuilder.Ignore<TemplateId>();
+        modelBuilder.Ignore<TaskId>();
+        modelBuilder.Ignore<ProjectId>();
+
         // 套用所有配置
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 

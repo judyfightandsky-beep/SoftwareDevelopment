@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SoftwareDevelopment.Application.Common;
-using SoftwareDevelopment.Domain.Users;
+using SoftwareDevelopment.Domain.Users.Entities;
+using SoftwareDevelopment.Domain.Users.ValueObjects;
+using SoftwareDevelopment.Domain.Users.Repositories;
 using SoftwareDevelopment.Domain.Shared;
+using SoftwareDevelopment.Domain.Common;
 
 namespace SoftwareDevelopment.Application.Users.Register;
 

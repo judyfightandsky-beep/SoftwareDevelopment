@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SoftwareDevelopment.Domain.Users;
+using SoftwareDevelopment.Domain.Users.Entities;
+using SoftwareDevelopment.Domain.Users.ValueObjects;
 using SoftwareDevelopment.Domain.Shared;
 
 namespace SoftwareDevelopment.Infrastructure.Persistence.Configurations;
@@ -33,7 +34,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
                 id => id.Value,
                 value => UserId.From(value))
             .ValueGeneratedNever();
-
+        
         // 基本屬性配置
         builder.Property(u => u.FirstName)
             .IsRequired()

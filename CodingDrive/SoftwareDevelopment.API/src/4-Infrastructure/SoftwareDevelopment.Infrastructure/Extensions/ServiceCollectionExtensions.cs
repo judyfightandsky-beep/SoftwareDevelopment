@@ -1,10 +1,19 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using MediatR;
 using SoftwareDevelopment.Application.Common;
-using SoftwareDevelopment.Domain.Users;
+using SoftwareDevelopment.Domain.Users.ValueObjects;
+using SoftwareDevelopment.Domain.Users.Services;
+using SoftwareDevelopment.Domain.Common;
+using SoftwareDevelopment.Domain.Templates.Repositories;
+using SoftwareDevelopment.Domain.Tasks.Repositories;
+using SoftwareDevelopment.Domain.Users.Repositories;
+using SoftwareDevelopment.Domain.Users.Events;
 using SoftwareDevelopment.Infrastructure.Persistence;
 using SoftwareDevelopment.Infrastructure.Persistence.Repositories;
+using SoftwareDevelopment.Infrastructure.Services;
+using SoftwareDevelopment.Infrastructure.EventHandlers;
 
 namespace SoftwareDevelopment.Infrastructure.Extensions;
 
@@ -43,9 +52,22 @@ public static class ServiceCollectionExtensions
 
         // 註冊儲存庫
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ITaskRepository, TaskRepository>();
+        services.AddScoped<IProjectTemplateRepository, ProjectTemplateRepository>();
+
+        // TODO: 等 GitLab 整合服務實作完成後再啟用
+        // services.Configure<GitLabConfiguration>(configuration.GetSection(GitLabConfiguration.ConfigurationKey));
+        // services.AddHttpClient<IGitLabService, GitLabService>(client =>
+        // {
+        //     client.Timeout = TimeSpan.FromSeconds(30);
+        // });
 
         // 註冊應用服務
         services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+        services.AddScoped<ITokenService, TokenService>();
+
+        // 註冊基礎設施層的事件處理器
+        services.AddScoped<INotificationHandler<DomainEventNotification<UserCreatedEvent>>, UserCreatedEmailNotificationHandler>();
 
         return services;
     }
