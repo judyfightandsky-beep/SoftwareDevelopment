@@ -1,48 +1,38 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { LoginResponse } from '../types/auth';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useContext } from 'react';
+import { useAuthStore } from '../stores/auth-store';
 
 interface AuthContextType {
-  user: LoginResponse | null;
-  login: (userData: LoginResponse) => void;
+  user: any | null;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  authError: string | null;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  login: () => {},
+  login: async () => {},
   logout: () => {},
-  isAuthenticated: false
+  isAuthenticated: false,
+  authError: null,
+  isLoading: false
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<LoginResponse | null>(null);
-  const navigate = useNavigate();
+  const { user, login, logout, isAuthenticated, error, isLoading } = useAuthStore();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
-  const login = (userData: LoginResponse) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-    navigate('/dashboard');
+  const contextValue: AuthContextType = {
+    user,
+    login,
+    logout,
+    isAuthenticated,
+    authError: error,
+    isLoading
   };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
-
-  const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

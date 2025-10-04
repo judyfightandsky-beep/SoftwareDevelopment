@@ -8,89 +8,81 @@ import {
   EmailVerificationRequest,
   AuthErrorResponse
 } from '../types/auth';
+import { apiClient } from './api-client';
 
 class AuthService {
-  private baseUrl = 'http://localhost:5555/api/Users';
 
   async register(data: UserRegistrationRequest): Promise<UserRegistrationResponse> {
-    const response = await fetch(`${this.baseUrl}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      const error: AuthErrorResponse = await response.json();
-      throw new Error(error.message || '註冊失敗');
+    try {
+      const response = await apiClient.post('/Users/register', data);
+      if (response.data.success) {
+        return response.data.data;
+      }
+      throw new Error(response.data.message || '註冊失敗');
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
     }
-
-    return response.json();
   }
 
   async login(data: LoginRequest): Promise<LoginResponse> {
-    const response = await fetch(`${this.baseUrl}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      const error: AuthErrorResponse = await response.json();
-      throw new Error(error.message || '登入失敗');
+    try {
+      const response = await apiClient.post<LoginResponse>('/Users/login', data);
+      // The API returns the login response directly, not wrapped in a success/data structure
+      this.setAccessToken(response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken || '');
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
-
-    return response.json();
   }
 
   async passwordResetRequest(data: PasswordResetRequest): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/password-reset-request`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      const error: AuthErrorResponse = await response.json();
-      throw new Error(error.message || '密碼重設請求失敗');
+    try {
+      const response = await apiClient.post('/Users/password-reset-request', data);
+      if (!response.data.success) {
+        throw new Error(response.data.message || '密碼重設請求失敗');
+      }
+    } catch (error) {
+      console.error('Password reset request error:', error);
+      throw error;
     }
   }
 
   async passwordResetConfirm(data: PasswordResetConfirmRequest): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/password-reset-confirm`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      const error: AuthErrorResponse = await response.json();
-      throw new Error(error.message || '密碼重設失敗');
+    try {
+      const response = await apiClient.post('/Users/password-reset-confirm', data);
+      if (!response.data.success) {
+        throw new Error(response.data.message || '密碼重設失敗');
+      }
+    } catch (error) {
+      console.error('Password reset confirm error:', error);
+      throw error;
     }
   }
 
   async verifyEmail(data: EmailVerificationRequest): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/verify-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      const error: AuthErrorResponse = await response.json();
-      throw new Error(error.message || '信箱驗證失敗');
+    try {
+      const response = await apiClient.post('/Users/verify-email', data);
+      if (!response.data.success) {
+        throw new Error(response.data.message || '信箱驗證失敗');
+      }
+    } catch (error) {
+      console.error('Email verification error:', error);
+      throw error;
     }
   }
 
   async resendVerificationEmail(email: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/resend-verification-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
-
-    if (!response.ok) {
-      const error: AuthErrorResponse = await response.json();
-      throw new Error(error.message || '重新發送驗證信件失敗');
+    try {
+      const response = await apiClient.post('/Users/resend-verification-email', { email });
+      if (!response.data.success) {
+        throw new Error(response.data.message || '重新發送驗證信件失敗');
+      }
+    } catch (error) {
+      console.error('Resend verification email error:', error);
+      throw error;
     }
   }
 
@@ -114,18 +106,15 @@ class AuthService {
     if (!refreshToken) return null;
 
     try {
-      const response = await fetch(`${this.baseUrl}/refresh-token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken })
-      });
+      const response = await apiClient.post('/Users/refresh-token', { refreshToken });
 
-      if (!response.ok) {
-        this.removeAccessToken();
-        return null;
+      if (response.data.success) {
+        this.setAccessToken(response.data.data.accessToken);
+        return response.data.data;
       }
 
-      return response.json();
+      this.removeAccessToken();
+      return null;
     } catch {
       this.removeAccessToken();
       return null;

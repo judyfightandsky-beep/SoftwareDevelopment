@@ -1,4 +1,5 @@
 using SoftwareDevelopment.Domain.Common;
+using SoftwareDevelopment.Domain.Users.ValueObjects;
 
 namespace SoftwareDevelopment.Domain.Users.Events;
 

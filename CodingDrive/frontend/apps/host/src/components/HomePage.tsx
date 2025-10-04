@@ -188,7 +188,7 @@ const HomePage: React.FC = () => {
                 e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
               }}
             >
-              立即登入
+              登入
             </a>
           </div>
         </section>

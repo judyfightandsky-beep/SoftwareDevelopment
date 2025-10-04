@@ -2,6 +2,10 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SoftwareDevelopment.Application.Users.Register;
 using SoftwareDevelopment.Application.Users.Login;
+using SoftwareDevelopment.Application.Users.Queries.GetUser;
+using SoftwareDevelopment.Application.Users.Queries.GetUsers;
+using SoftwareDevelopment.Api.DTOs.Users;
+using SoftwareDevelopment.Api.DTOs.Common;
 
 namespace SoftwareDevelopment.Api.Controllers;
 
@@ -45,6 +49,16 @@ public sealed class UsersController : ControllerBase
         [FromBody] RegisterUserRequest request,
         CancellationToken cancellationToken)
     {
+        if (request == null)
+        {
+            _logger.LogWarning("Register request is null");
+            return BadRequest(new ErrorResponse
+            {
+                Error = "INVALID_REQUEST",
+                Message = "請求內容不能為空"
+            });
+        }
+
         _logger.LogInformation("Processing user registration for email: {Email}", request.Email);
 
         var command = new RegisterUserCommand(
@@ -61,18 +75,16 @@ public sealed class UsersController : ControllerBase
         {
             _logger.LogWarning("User registration failed: {Error}", result.Error.Message);
 
+            var errorResponse = new ErrorResponse
+            {
+                Error = result.Error.Code,
+                Message = result.Error.Message
+            };
+
             return result.Error.Code switch
             {
-                "USER.DUPLICATE_USERNAME" or "USER.DUPLICATE_EMAIL" => Conflict(new
-                {
-                    error = result.Error.Code,
-                    message = result.Error.Message
-                }),
-                _ => BadRequest(new
-                {
-                    error = result.Error.Code,
-                    message = result.Error.Message
-                })
+                "USER.DUPLICATE_USERNAME" or "USER.DUPLICATE_EMAIL" => Conflict(errorResponse),
+                _ => BadRequest(errorResponse)
             };
         }
 
@@ -98,6 +110,16 @@ public sealed class UsersController : ControllerBase
         [FromBody] LoginUserRequest request,
         CancellationToken cancellationToken)
     {
+        if (request == null)
+        {
+            _logger.LogWarning("Login request is null");
+            return BadRequest(new ErrorResponse
+            {
+                Error = "INVALID_REQUEST",
+                Message = "請求內容不能為空"
+            });
+        }
+
         _logger.LogInformation("Processing user login for email: {Email}", request.Email);
 
         var command = new LoginUserCommand(
@@ -110,18 +132,16 @@ public sealed class UsersController : ControllerBase
         {
             _logger.LogWarning("User login failed: {Error}", result.Error.Message);
 
+            var errorResponse = new ErrorResponse
+            {
+                Error = result.Error.Code,
+                Message = result.Error.Message
+            };
+
             return result.Error.Code switch
             {
-                "USER.INVALID_CREDENTIALS" => Unauthorized(new
-                {
-                    error = result.Error.Code,
-                    message = result.Error.Message
-                }),
-                _ => BadRequest(new
-                {
-                    error = result.Error.Code,
-                    message = result.Error.Message
-                })
+                "USER.INVALID_CREDENTIALS" => Unauthorized(errorResponse),
+                _ => BadRequest(errorResponse)
             };
         }
 
@@ -139,18 +159,44 @@ public sealed class UsersController : ControllerBase
     /// <response code="200">取得使用者成功</response>
     /// <response code="404">使用者不存在</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
         _logger.LogInformation("Retrieving user with ID: {UserId}", id);
 
-        // TODO: 實作取得使用者查詢
-        await Task.CompletedTask;
+        var query = new GetUserQuery(id);
+        var result = await _mediator.Send(query, cancellationToken);
 
-        return NotFound();
+        if (result.IsFailure)
+        {
+            _logger.LogWarning("User not found: {UserId}", id);
+
+            var errorResponse = new ErrorResponse
+            {
+                Error = result.Error.Code,
+                Message = result.Error.Message
+            };
+
+            return NotFound(errorResponse);
+        }
+
+        var userResponse = new UserResponse
+        {
+            Id = result.Value!.Id,
+            Username = result.Value.Username,
+            Email = result.Value.Email,
+            FirstName = result.Value.FirstName,
+            LastName = result.Value.LastName,
+            Role = result.Value.Role,
+            IsEmailVerified = result.Value.IsEmailVerified,
+            CreatedAt = result.Value.CreatedAt,
+            LastLoginAt = result.Value.LastLoginAt
+        };
+
+        return Ok(userResponse);
     }
 
     /// <summary>
@@ -165,8 +211,8 @@ public sealed class UsersController : ControllerBase
     /// <response code="200">取得使用者清單成功</response>
     /// <response code="400">請求參數無效</response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(PagedUsersResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetUsersAsync(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
@@ -176,55 +222,49 @@ public sealed class UsersController : ControllerBase
     {
         _logger.LogInformation("Retrieving users list - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
 
-        if (pageNumber < 1)
-        {
-            return BadRequest("頁數必須大於 0");
-        }
+        var query = new GetUsersQuery(pageNumber, pageSize, role, status);
+        var result = await _mediator.Send(query, cancellationToken);
 
-        if (pageSize is < 1 or > 100)
+        if (result.IsFailure)
         {
-            return BadRequest("每頁大小必須介於 1-100 之間");
-        }
+            _logger.LogWarning("Get users failed: {Error}", result.Error.Message);
 
-        // TODO: 實作取得使用者清單查詢
-        await Task.CompletedTask;
-
-        return Ok(new
-        {
-            data = Array.Empty<object>(),
-            pagination = new
+            var errorResponse = new ErrorResponse
             {
-                pageNumber,
-                pageSize,
-                totalCount = 0,
-                totalPages = 0
+                Error = result.Error.Code,
+                Message = result.Error.Message
+            };
+
+            return BadRequest(errorResponse);
+        }
+
+        var users = result.Value!.Users.Select(u => new UserResponse
+        {
+            Id = u.Id,
+            Username = u.Username,
+            Email = u.Email,
+            FirstName = u.FirstName,
+            LastName = u.LastName,
+            Role = u.Role,
+            IsEmailVerified = u.IsEmailVerified,
+            CreatedAt = u.CreatedAt,
+            LastLoginAt = u.LastLoginAt
+        }).ToList();
+
+        var response = new PagedUsersResponse
+        {
+            Data = users,
+            Pagination = new PaginationMetadata
+            {
+                PageNumber = result.Value.PageNumber,
+                PageSize = result.Value.PageSize,
+                TotalCount = result.Value.TotalCount,
+                TotalPages = result.Value.TotalPages,
+                HasPreviousPage = result.Value.HasPreviousPage,
+                HasNextPage = result.Value.HasNextPage
             }
-        });
+        };
+
+        return Ok(response);
     }
 }
-
-/// <summary>
-/// 註冊使用者請求
-/// </summary>
-/// <param name="Username">使用者名稱</param>
-/// <param name="Email">電子信箱</param>
-/// <param name="FirstName">名字</param>
-/// <param name="LastName">姓氏</param>
-/// <param name="Password">密碼</param>
-/// <param name="ConfirmPassword">確認密碼</param>
-public sealed record RegisterUserRequest(
-    string Username,
-    string Email,
-    string FirstName,
-    string LastName,
-    string Password,
-    string ConfirmPassword);
-
-/// <summary>
-/// 使用者登入請求
-/// </summary>
-/// <param name="Email">電子信箱</param>
-/// <param name="Password">密碼</param>
-public sealed record LoginUserRequest(
-    string Email,
-    string Password);

@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using SoftwareDevelopment.Domain.Users;
+using SoftwareDevelopment.Domain.Users.Entities;
+using SoftwareDevelopment.Domain.Users.ValueObjects;
+using SoftwareDevelopment.Domain.Users.Repositories;
 using SoftwareDevelopment.Domain.Shared;
 
 namespace SoftwareDevelopment.Infrastructure.Persistence.Repositories;
@@ -175,5 +177,31 @@ public sealed class UserRepository : IUserRepository
     public void Remove(User aggregate)
     {
         _context.Users.Remove(aggregate);
+    }
+
+    /// <summary>
+    /// 取得驗證權杖
+    /// </summary>
+    /// <param name="token">權杖字串</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>驗證權杖，若不存在則返回 null</returns>
+    public async Task<VerificationToken?> GetVerificationTokenAsync(string token, CancellationToken cancellationToken = default)
+    {
+        // TODO: 需要實作 VerificationTokens DbSet 和相關配置
+        // 目前暫時返回 null
+        await Task.CompletedTask;
+        return null;
+    }
+
+    /// <summary>
+    /// 更新驗證權杖
+    /// </summary>
+    /// <param name="verificationToken">驗證權杖</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>非同步任務</returns>
+    public async Task UpdateVerificationTokenAsync(VerificationToken verificationToken, CancellationToken cancellationToken = default)
+    {
+        // TODO: 需要實作 VerificationTokens DbSet 和相關配置
+        await Task.CompletedTask;
     }
 }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7071';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5555';
 
 const authApi = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -35,7 +35,7 @@ export interface ApiError {
 export const authService = {
   register: async (data: RegisterRequest): Promise<RegisterResponse> => {
     try {
-      const response = await authApi.post<RegisterResponse>('/users/register', data);
+      const response = await authApi.post<RegisterResponse>('/Users/register', data);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

@@ -13,18 +13,20 @@ interface LoginFormProps {
 export const LoginForm: React.FC<LoginFormProps> = ({
   onPasswordResetRequest
 }) => {
-  const { login } = useAuth();
-  const [username, setUsername] = useState('');
+  const { login, authError, isLoading: contextLoading } = useAuth();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   const validateForm = useCallback((): boolean => {
-    const newErrors: { username?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string } = {};
 
-    if (!username.trim()) {
-      newErrors.username = '請輸入使用者名稱';
+    if (!email.trim()) {
+      newErrors.email = '請輸入電子郵件';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = '請輸入有效的電子郵件格式';
     }
 
     if (!password) {
@@ -33,57 +35,25 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [username, password]);
-
-  const [loginError, setLoginError] = useState<string | null>(null);
+  }, [email, password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError(null);
 
     if (!validateForm()) return;
 
     setIsLoading(true);
 
     try {
-      const loginData: LoginRequest = {
-        username,
-        password
-      };
-
-      const response = await fetch('http://localhost:5555/api/Users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginData),
-      });
-
-      if (response.ok) {
-        const result: LoginResponse = await response.json();
-        console.log('登入API回應:', result);
-        login(result);
-      } else {
-        const error: AuthErrorResponse = await response.json();
-        switch (error.code) {
-          case 'USER_NOT_FOUND':
-            setLoginError('使用者名稱不存在');
-            break;
-          case 'INVALID_CREDENTIALS':
-            setLoginError('密碼錢誤');
-            break;
-          case 'ACCOUNT_LOCKED':
-            setLoginError('帳號已被鎖定，請聯絡管理員');
-            break;
-          default:
-            setLoginError(error.message || '登入失敗');
-        }
-      }
+      await login(email, password);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '登入失敗';
-      setLoginError(errorMessage);
+      console.error('登入失敗:', error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const loginInProgress = isLoading || contextLoading;
 
   return (
     <div style={{
@@ -135,7 +105,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       </div>
 
       <form onSubmit={handleSubmit}>
-          {loginError && (
+          {authError && (
             <div style={{
               backgroundColor: '#fecaca',
               color: '#7f1d1d',
@@ -149,10 +119,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{ width: '1.25rem', height: '1.25rem' }}>
                 <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
               </svg>
-              <span>{loginError}</span>
+              <span>{authError}</span>
             </div>
           )}
-        {/* 使用者名稱 */}
+        {/* 電子郵件 */}
         <div style={{ marginBottom: '1rem' }}>
           <label style={{
             display: 'block',
@@ -160,35 +130,35 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             marginBottom: '0.5rem',
             color: '#374151'
           }}>
-            使用者名稱 *
+            電子郵件 *
           </label>
           <input
-            type="text"
-            value={username}
+            type="email"
+            value={email}
             onChange={(e) => {
-              setUsername(e.target.value);
-              if (errors.username) {
-                setErrors(prev => ({ ...prev, username: undefined }));
+              setEmail(e.target.value);
+              if (errors.email) {
+                setErrors(prev => ({ ...prev, email: undefined }));
               }
             }}
             style={{
               width: '100%',
               padding: '0.75rem',
-              border: `1px solid ${errors.username ? '#ef4444' : '#d1d5db'}`,
+              border: `1px solid ${errors.email ? '#ef4444' : '#d1d5db'}`,
               borderRadius: '6px',
               fontSize: '1rem',
               outline: 'none',
               transition: 'border-color 0.2s'
             }}
-            placeholder="輸入您的使用者名稱"
+            placeholder="輸入您的電子郵件"
           />
-          {errors.username && (
+          {errors.email && (
             <div style={{
               color: '#ef4444',
               fontSize: '0.875rem',
               marginTop: '0.25rem'
             }}>
-              {errors.username}
+              {errors.email}
             </div>
           )}
         </div>
@@ -272,17 +242,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         {/* 提交按鈕 */}
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={loginInProgress}
           style={{
             width: '100%',
             padding: '0.875rem 1.5rem',
-            backgroundColor: isLoading ? '#9ca3af' : '#3b82f6',
+            backgroundColor: loginInProgress ? '#9ca3af' : '#3b82f6',
             color: 'white',
             border: 'none',
             borderRadius: '6px',
             fontSize: '1rem',
             fontWeight: '600',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
+            cursor: loginInProgress ? 'not-allowed' : 'pointer',
             transition: 'background-color 0.2s',
             display: 'flex',
             alignItems: 'center',
@@ -290,8 +260,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             gap: '0.5rem'
           }}
         >
-          {isLoading ? '登入中...' : '登入'}
-          {!isLoading && <span>→</span>}
+          {loginInProgress ? '登入中...' : '登入'}
+          {!loginInProgress && <span>→</span>}
         </button>
       </form>
 
